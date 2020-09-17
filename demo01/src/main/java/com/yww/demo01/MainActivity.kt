@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     val key = MutableLiveData("string")
@@ -19,15 +20,17 @@ class MainActivity : AppCompatActivity() {
 
         // 添加监听 数据一旦发生变更会走入回调中
         key.observe(this,
-            Observer<String> { Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show() })
+            Observer<String> {
+                edit_et.setText(it)
+            })
 
         add_btn.setOnClickListener {
             if (isMain) {
                 key.value = "主线程调用"
             } else {
-                Thread(Runnable {
+                thread(start = true) {
                     key.postValue("子线程调用更换")
-                }).run()
+                }
             }
             isMain = !isMain
         }
